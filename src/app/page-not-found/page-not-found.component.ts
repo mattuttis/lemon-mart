@@ -6,8 +6,9 @@ import { Component } from '@angular/core';
   imports: [],
   template: `
     <p>
-      page-not-found works!
-    </p>
+      This page doesn't exist. Go back to
+      <a routerLink="/home">home</a>
+    </p>1
   `,
   styles: ``
 })
