@@ -25,6 +25,7 @@
     "zone.js": "~0.14.3"
   },
   "devDependencies": {
+    "@ngbracket/ngx-layout": "^17.0.0",
     "@angular-devkit/build-angular": "^17.1.4",
     "@angular/cli": "^17.1.4",
     "@angular/compiler-cli": "^17.1.0",

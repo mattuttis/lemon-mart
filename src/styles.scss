@@ -3,24 +3,22 @@
 /* You can add global styles to this file, and also import other style files */
 
 html,
-  body {
+body {
   height: 100%;
 }
 body {
-  margin: 0; font-family: Roboto, 'Helvetica Neue', sans-serif;
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
+
 .top-pad {
   margin-top: 16px;
 }
+
 .h-pad {
   margin: 0 16px;
 }
-.v-pad {
-  margin: 16px 0;
-}
-.left-pad {
-  margin-left: 8px;
-}
+
 .flex-spacer {
   flex: 1 1 auto;
 }
