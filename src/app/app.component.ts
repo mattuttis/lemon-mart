@@ -16,8 +16,10 @@ import {FlexModule} from "@ngbracket/ngx-layout";
       <button mat-icon-button>
         <mat-icon>menu</mat-icon>
       </button>
-      <mat-icon svgIcon="lemon"></mat-icon>
-      <a mat-button routerLink="/home"><h1>LemonMart</h1></a>
+      <a mat-button routerLink="/home">
+        <mat-icon svgIcon="lemon"></mat-icon>
+        LemonMart
+      </a>
       <span class="flex-spacer"></span>
 
       <button mat-mini-fab routerLink="/user/profile"
