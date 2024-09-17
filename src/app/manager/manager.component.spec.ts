@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ManagerComponent } from './manager.component';
+import {commonTestingModules} from "../common/common.testing";
 
 describe('ManagerComponent', () => {
   let component: ManagerComponent;
@@ -8,10 +9,10 @@ describe('ManagerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ManagerComponent]
+      imports: [...commonTestingModules, ManagerComponent]
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(ManagerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

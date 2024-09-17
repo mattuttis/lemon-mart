@@ -48,5 +48,5 @@ export class AppComponent {
       )
     )
   }
-  title = 'lemon-mart';
+  title = 'LemonMart';
 }
