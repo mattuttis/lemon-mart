@@ -1,28 +1,68 @@
 import {Role} from "./auth.enum";
-import {BehaviorSubject, Observable} from "rxjs";
+import {jwtDecode as decode} from 'jwt-decode'
+import {BehaviorSubject, catchError, filter, flatMap, map, Observable, tap, throwError} from "rxjs";
 import {IUser, User} from "../user/user/user";
+import {transformError} from "../common/common";
+import {inject} from "@angular/core";
+import {CacheService} from "../common/cache.service";
 
 export abstract class AuthService implements IAuthService {
 
   readonly authStatus$ = new BehaviorSubject<IAuthStatus>(defaultAuthStatus)
   readonly currentUser$ = new BehaviorSubject<IUser>(new User())
 
-  constructor() { }
+  protected readonly cache = inject(CacheService)
 
-  protected abstract authProvider(email: string, password: string): Observable<IServerAuthResponse>
-  protected abstract transformJwtToken(token: unknown): IAuthStatus
-  protected abstract getCurrentUser(): Observable<User>
-
-  getToken(): string {
-    throw new Error("Method not implemented")
+  constructor() {
   }
 
+  protected abstract authProvider(email: string, password: string): Observable<IServerAuthResponse>
+
+  protected abstract transformJwtToken(token: unknown): IAuthStatus
+
+  protected abstract getCurrentUser(): Observable<User>
+
   login(email: string, password: string): Observable<void> {
-    throw new Error("Method not implemented")
+    this.clearToken()
+    const loginResponse$ = this.authProvider(email, password)
+      .pipe(
+        map((value) => {
+          this.setToken(value.accessToken)
+          const token = decode(value.accessToken)
+          return this.transformJwtToken(token)
+        }),
+        tap((status) => this.authStatus$.next(status)),
+        filter((status: IAuthStatus) => status.isAuthenticated),
+        flatMap(() => this.getCurrentUser()),
+        map(user => this.currentUser$.next(user)),
+        catchError(transformError)
+      )
+    loginResponse$.subscribe({
+      error: err => {
+        this.logout()
+        return throwError(() => err)
+      },
+    })
+    return loginResponse$
   }
 
   logout(clearToken?: boolean): void {
-    throw new Error("Method not implemented")
+    if (clearToken) {
+      this.clearToken()
+    }
+    setTimeout(() => this.authStatus$.next(defaultAuthStatus))
+  }
+
+  protected setToken(jwt: string) {
+    this.cache.setItem('jwt', jwt)
+  }
+
+  getToken(): string {
+    return this.cache.getItem('jwt') ?? ''
+  }
+
+  protected clearToken() {
+    this.cache.removeItem('jwt')
   }
 }
 
@@ -45,7 +85,10 @@ export const defaultAuthStatus: IAuthStatus = {
 export interface IAuthService {
   readonly authStatus$: BehaviorSubject<IAuthStatus>
   readonly currentUser$: BehaviorSubject<IUser>
+
   login(email: string, password: string): Observable<void>
+
   logout(clearToken?: boolean): void
+
   getToken(): string
 }
