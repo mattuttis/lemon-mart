@@ -14,6 +14,11 @@ export abstract class AuthService implements IAuthService {
   protected readonly cache = inject(CacheService)
 
   constructor() {
+    if (this.hasExpiredToken()) {
+      this.logout(true)
+    } else {
+      this.authStatus$.next(this.getAuthStatusFromToken())
+    }
   }
 
   protected abstract authProvider(email: string, password: string): Observable<IServerAuthResponse>
@@ -28,8 +33,7 @@ export abstract class AuthService implements IAuthService {
       .pipe(
         map((value) => {
           this.setToken(value.accessToken)
-          const token = decode(value.accessToken)
-          return this.transformJwtToken(token)
+          return this.getAuthStatusFromToken()
         }),
         tap((status) => this.authStatus$.next(status)),
         filter((status: IAuthStatus) => status.isAuthenticated),
@@ -63,6 +67,19 @@ export abstract class AuthService implements IAuthService {
 
   protected clearToken() {
     this.cache.removeItem('jwt')
+  }
+
+  protected hasExpiredToken(): boolean {
+    const jwt = this.getToken()
+    if (jwt) {
+      const payload = decode(jwt) as any
+      return Date.now() > payload.exp * 1000
+    }
+    return true
+  }
+
+  protected getAuthStatusFromToken() : IAuthStatus {
+    return this.transformJwtToken(decode(this.getToken()))
   }
 }
 
